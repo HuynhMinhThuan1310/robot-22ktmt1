@@ -1,6 +1,6 @@
 # Điều khiển Robot Di động trong Môi trường có Nhiễu và Bất định (Chủ đề 4)
 
-**Học phần:** Kỹ thuật Robot — Nhóm / Sinh viên: Huỳnh Minh Thuận (`22KTMT1`)  
+**Học phần:** Kỹ thuật Robot — Nhóm sinh viên: **Huỳnh Minh Thuận** (`106220236`) & **Trần Viết Thắng** (`22KTMT1`)  
 **Phương pháp đề xuất:** **Extended Kalman Filter (EKF) + Bộ điều khiển PID (Filtered D + Anti-windup)**  
 **Đề tài ứng dụng:** *Nghiên cứu và Thiết kế Hệ thống Điều khiển Bám Quỹ đạo cho Robot Di động Vi sai 2 Bánh (AGV) trong Nhà xưởng dưới Tác động của Nhiễu Cảm biến, Nhiễu Gai Đột biến, Trôi Encoder và Trượt Bánh.*
 
