@@ -130,11 +130,24 @@ def add_page_number_footer(section):
 def add_cover_border(section):
     sectPr = section._sectPr
     pgBorders = parse_xml(
-        f'<w:pgBorders {nsdecls("w")} w:offsetFrom="page">'
+        f'<w:pgBorders {nsdecls("w")} w:offsetFrom="page" w:display="firstPage">'
         f'  <w:top w:val="double" w:sz="12" w:space="24" w:color="1F4E79"/>'
         f'  <w:left w:val="double" w:sz="12" w:space="24" w:color="1F4E79"/>'
         f'  <w:bottom w:val="double" w:sz="12" w:space="24" w:color="1F4E79"/>'
         f'  <w:right w:val="double" w:sz="12" w:space="24" w:color="1F4E79"/>'
+        f'</w:pgBorders>'
+    )
+    sectPr.append(pgBorders)
+
+
+def clear_page_border(section):
+    sectPr = section._sectPr
+    pgBorders = parse_xml(
+        f'<w:pgBorders {nsdecls("w")} w:offsetFrom="page">'
+        f'  <w:top w:val="none" w:sz="0" w:space="0" w:color="auto"/>'
+        f'  <w:left w:val="none" w:sz="0" w:space="0" w:color="auto"/>'
+        f'  <w:bottom w:val="none" w:sz="0" w:space="0" w:color="auto"/>'
+        f'  <w:right w:val="none" w:sz="0" w:space="0" w:color="auto"/>'
         f'</w:pgBorders>'
     )
     sectPr.append(pgBorders)
@@ -184,7 +197,8 @@ def add_latex_formula(doc, latex_str, eq_num, fontsize=14.5):
     c1.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
 
     p0 = c0.paragraphs[0]
-    p0.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p0.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    p0.paragraph_format.left_indent = Cm(0.8)
     p0.paragraph_format.space_before = Pt(4)
     p0.paragraph_format.space_after = Pt(4)
     p0.add_run().add_picture(eq_path, width=Inches(w_in))
@@ -202,7 +216,7 @@ def add_chapter_heading(doc, title, page_break=True):
     if page_break:
         doc.add_page_break()
     p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
     p.paragraph_format.space_before = Pt(6)
     p.paragraph_format.space_after = Pt(12)
     p.paragraph_format.keep_with_next = True
@@ -252,7 +266,7 @@ def add_figure(doc, img_filename, caption, width_inches=6.0):
 
 def add_styled_table(doc, headers, rows, caption, col_widths_cm=None, bold_last_row=False):
     p_cap = doc.add_paragraph()
-    p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_cap.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     p_cap.paragraph_format.space_before = Pt(8)
     p_cap.paragraph_format.space_after = Pt(4)
     p_cap.paragraph_format.keep_with_next = True
@@ -268,7 +282,7 @@ def add_styled_table(doc, headers, rows, caption, col_widths_cm=None, bold_last_
         set_cell_margins(hdr_cells[i], top=90, bottom=90, left=80, right=80)
         hdr_cells[i].vertical_alignment = WD_ALIGN_VERTICAL.CENTER
         p = hdr_cells[i].paragraphs[0]
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p.alignment = WD_ALIGN_PARAGRAPH.LEFT
         p.paragraph_format.space_before = Pt(0)
         p.paragraph_format.space_after = Pt(0)
         add_rich_runs(p, h, font_size=11.5, bold=True, color=RGBColor(0xFF, 0xFF, 0xFF))
@@ -282,7 +296,7 @@ def add_styled_table(doc, headers, rows, caption, col_widths_cm=None, bold_last_
             set_cell_margins(row_cells[c_idx], top=70, bottom=70, left=80, right=80)
             row_cells[c_idx].vertical_alignment = WD_ALIGN_VERTICAL.CENTER
             p = row_cells[c_idx].paragraphs[0]
-            p.alignment = WD_ALIGN_PARAGRAPH.LEFT if c_idx == 0 else WD_ALIGN_PARAGRAPH.CENTER
+            p.alignment = WD_ALIGN_PARAGRAPH.LEFT
             p.paragraph_format.space_before = Pt(0)
             p.paragraph_format.space_after = Pt(0)
             p.paragraph_format.line_spacing = 1.15
@@ -384,6 +398,7 @@ def build_report():
     sec1.bottom_margin = Cm(2.5)
     sec1.left_margin = Cm(3.0)
     sec1.right_margin = Cm(2.0)
+    clear_page_border(sec1)
     sec1.footer.is_linked_to_previous = False
     add_page_number_footer(sec1)
 
