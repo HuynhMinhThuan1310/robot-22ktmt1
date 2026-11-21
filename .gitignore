@@ -2,5 +2,6 @@
 *.slxc
 slprj/
 *.autosave
+~$*.docx
 .DS_Store
 Thumbs.db
