@@ -113,46 +113,72 @@ add_block('simulink/Math Operations/Sum', [modelName, '/Sum_Slip_v'], ...
 add_block('simulink/Math Operations/Sum', [modelName, '/Sum_Slip_w'], ...
     'Inputs', '++', 'Position', [695, 235, 715, 255]);
 
-%% 4. KHỐI ĐỘNG HỌC ROBOT VI SAI 2 BÁNH CÓ TRƯỢT NGANG (UNICYCLE PLANT)
-add_block('simulink/Signal Routing/Mux', [modelName, '/Plant_Mux'], ...
-    'Inputs', '3', 'Position', [755, 145, 763, 295]);
+%% 4. KHỐI MÔ HÌNH ROBOT VI SAI 2 BÁNH (ĐÓNG GÓI THÀNH 1 KHỐI SUBSYSTEM DUY NHẤT)
+subName = [modelName, '/Differential Drive Robot Model'];
+add_block('simulink/Ports & Subsystems/Subsystem', subName, ...
+    'Position', [765, 145, 925, 275]);
+% Xoa cac khoi mac dinh ben trong Subsystem moi tao
+delete_line(subName, 'In1/1', 'Out1/1');
+delete_block([subName, '/In1']);
+delete_block([subName, '/Out1']);
 
-add_block('simulink/User-Defined Functions/Fcn', [modelName, '/dx_dot'], ...
-    'Expr', 'u(1)*cos(u(3)) - 0.08*u(1)*u(2)*sin(u(3))', 'Position', [795, 145, 900, 175]);
-add_block('simulink/User-Defined Functions/Fcn', [modelName, '/dy_dot'], ...
-    'Expr', 'u(1)*sin(u(3)) + 0.08*u(1)*u(2)*cos(u(3))', 'Position', [795, 200, 900, 230]);
-add_block('simulink/User-Defined Functions/Fcn', [modelName, '/dth_dot'], ...
-    'Expr', 'u(2)', 'Position', [795, 255, 900, 285]);
+% Tao 2 cong vao (v, w) va 1 cong ra (q = [x; y; theta])
+add_block('simulink/Sources/In1',  [subName, '/v'], 'Port', '1', 'Position', [30, 65, 60, 85]);
+add_block('simulink/Sources/In1',  [subName, '/w'], 'Port', '2', 'Position', [30, 125, 60, 145]);
+add_block('simulink/Sinks/Out1',   [subName, '/q_true'], 'Port', '1', 'Position', [480, 115, 510, 135]);
 
-add_block('simulink/Continuous/Integrator', [modelName, '/Int_x'], ...
-    'InitialCondition', '0.40', 'Position', [935, 145, 965, 175]);
-add_block('simulink/Continuous/Integrator', [modelName, '/Int_y'], ...
-    'InitialCondition', '-0.45', 'Position', [935, 200, 965, 230]);
-add_block('simulink/Continuous/Integrator', [modelName, '/Int_th'], ...
-    'InitialCondition', '0.50', 'Position', [935, 255, 965, 285]);
+add_block('simulink/Signal Routing/Mux', [subName, '/Plant_Mux'], ...
+    'Inputs', '3', 'Position', [115, 55, 123, 215]);
+add_block('simulink/User-Defined Functions/Fcn', [subName, '/dx_dot'], ...
+    'Expr', 'u(1)*cos(u(3)) - 0.08*u(1)*u(2)*sin(u(3))', 'Position', [160, 55, 275, 85]);
+add_block('simulink/User-Defined Functions/Fcn', [subName, '/dy_dot'], ...
+    'Expr', 'u(1)*sin(u(3)) + 0.08*u(1)*u(2)*cos(u(3))', 'Position', [160, 115, 275, 145]);
+add_block('simulink/User-Defined Functions/Fcn', [subName, '/dth_dot'], ...
+    'Expr', 'u(2)', 'Position', [160, 175, 275, 205]);
 
-add_block('simulink/Signal Routing/Mux', [modelName, '/State_Mux'], ...
-    'Inputs', '3', 'Position', [1005, 140, 1013, 290]);
+add_block('simulink/Continuous/Integrator', [subName, '/Int_x'], ...
+    'InitialCondition', '0.40', 'Position', [315, 55, 345, 85]);
+add_block('simulink/Continuous/Integrator', [subName, '/Int_y'], ...
+    'InitialCondition', '-0.45', 'Position', [315, 115, 345, 145]);
+add_block('simulink/Continuous/Integrator', [subName, '/Int_th'], ...
+    'InitialCondition', '0.50', 'Position', [315, 175, 345, 205]);
+
+add_block('simulink/Signal Routing/Mux', [subName, '/State_Mux'], ...
+    'Inputs', '3', 'Position', [410, 50, 418, 210]);
+
+add_line(subName, 'v/1',       'Plant_Mux/1', 'autorouting', 'on');
+add_line(subName, 'w/1',       'Plant_Mux/2', 'autorouting', 'on');
+add_line(subName, 'Int_th/1',  'Plant_Mux/3', 'autorouting', 'on');
+add_line(subName, 'Plant_Mux/1', 'dx_dot/1',  'autorouting', 'on');
+add_line(subName, 'Plant_Mux/1', 'dy_dot/1',  'autorouting', 'on');
+add_line(subName, 'Plant_Mux/1', 'dth_dot/1', 'autorouting', 'on');
+add_line(subName, 'dx_dot/1',  'Int_x/1',     'autorouting', 'on');
+add_line(subName, 'dy_dot/1',  'Int_y/1',     'autorouting', 'on');
+add_line(subName, 'dth_dot/1', 'Int_th/1',    'autorouting', 'on');
+add_line(subName, 'Int_x/1',   'State_Mux/1', 'autorouting', 'on');
+add_line(subName, 'Int_y/1',   'State_Mux/2', 'autorouting', 'on');
+add_line(subName, 'Int_th/1',  'State_Mux/3', 'autorouting', 'on');
+add_line(subName, 'State_Mux/1', 'q_true/1',  'autorouting', 'on');
 
 %% 5. KHỐI NHIỄU CẢM BIẾN & BỘ LỌC KALMAN MỞ RỘNG (EKF STATE ESTIMATOR)
 add_block('simulink/Sources/Band-Limited White Noise', [modelName, '/Sensor_Gaussian_Noise'], ...
     'Cov', '[0.0004 0.0004 0.0001]', 'Seed', '[11 22 33]', 'Ts', '0.02', ...
-    'Position', [935, 340, 965, 370]);
+    'Position', [845, 340, 875, 370]);
 
 add_block('simulink/Math Operations/Sum', [modelName, '/Noisy_Sensor_Sum'], ...
-    'Inputs', '++', 'Position', [1005, 335, 1030, 365]);
+    'Inputs', '++', 'Position', [920, 335, 945, 365]);
 
 add_block('simulink/Discrete/Discrete Filter', [modelName, '/EKF_State_Estimator'], ...
     'Numerator', '[0.22]', 'Denominator', '[1 -0.78]', 'SampleTime', '0.02', ...
-    'Position', [610, 335, 730, 375]);
+    'Position', [580, 335, 700, 375]);
 
 %% 6. KHỐI ĐẦU RA & SCOPE QUAN SÁT
 add_block('simulink/Sinks/Out1', [modelName, '/q_true'], ...
-    'Port', '1', 'Position', [1070, 200, 1100, 230]);
+    'Port', '1', 'Position', [1005, 195, 1035, 225]);
 add_block('simulink/Sinks/Out1', [modelName, '/q_ref'], ...
     'Port', '2', 'Position', [335, 80, 365, 110]);
 add_block('simulink/Sinks/Scope', [modelName, '/Pose_Scope'], ...
-    'Position', [1070, 140, 1100, 175]);
+    'Position', [1005, 135, 1035, 170]);
 
 %% 7. KẾT NỐI DÂY TÍN HIỆU (SIGNAL CONNECTIONS)
 for fcnName = {'x_ref_fcn', 'y_ref_fcn', 'th_ref_fcn', 'v_ref_fcn', 'w_ref_fcn'}
@@ -186,25 +212,12 @@ add_line(modelName, 'Wheel_Slip_Disturbance/1', 'Sum_Slip_v/2', 'autorouting', '
 add_line(modelName, 'Sat_w/1',                  'Sum_Slip_w/1', 'autorouting', 'on');
 add_line(modelName, 'Wheel_Slip_Disturbance/1', 'Sum_Slip_w/2', 'autorouting', 'on');
 
-add_line(modelName, 'Sum_Slip_v/1', 'Plant_Mux/1', 'autorouting', 'on');
-add_line(modelName, 'Sum_Slip_w/1', 'Plant_Mux/2', 'autorouting', 'on');
-add_line(modelName, 'Int_th/1',     'Plant_Mux/3', 'autorouting', 'on');
+add_line(modelName, 'Sum_Slip_v/1', 'Differential Drive Robot Model/1', 'autorouting', 'on');
+add_line(modelName, 'Sum_Slip_w/1', 'Differential Drive Robot Model/2', 'autorouting', 'on');
 
-add_line(modelName, 'Plant_Mux/1', 'dx_dot/1',  'autorouting', 'on');
-add_line(modelName, 'Plant_Mux/1', 'dy_dot/1',  'autorouting', 'on');
-add_line(modelName, 'Plant_Mux/1', 'dth_dot/1', 'autorouting', 'on');
-
-add_line(modelName, 'dx_dot/1',  'Int_x/1',  'autorouting', 'on');
-add_line(modelName, 'dy_dot/1',  'Int_y/1',  'autorouting', 'on');
-add_line(modelName, 'dth_dot/1', 'Int_th/1', 'autorouting', 'on');
-
-add_line(modelName, 'Int_x/1',  'State_Mux/1', 'autorouting', 'on');
-add_line(modelName, 'Int_y/1',  'State_Mux/2', 'autorouting', 'on');
-add_line(modelName, 'Int_th/1', 'State_Mux/3', 'autorouting', 'on');
-
-add_line(modelName, 'State_Mux/1', 'q_true/1', 'autorouting', 'on');
-add_line(modelName, 'State_Mux/1', 'Pose_Scope/1', 'autorouting', 'on');
-add_line(modelName, 'State_Mux/1', 'Noisy_Sensor_Sum/1', 'autorouting', 'on');
+add_line(modelName, 'Differential Drive Robot Model/1', 'q_true/1', 'autorouting', 'on');
+add_line(modelName, 'Differential Drive Robot Model/1', 'Pose_Scope/1', 'autorouting', 'on');
+add_line(modelName, 'Differential Drive Robot Model/1', 'Noisy_Sensor_Sum/1', 'autorouting', 'on');
 add_line(modelName, 'Sensor_Gaussian_Noise/1', 'Noisy_Sensor_Sum/2', 'autorouting', 'on');
 add_line(modelName, 'Noisy_Sensor_Sum/1', 'EKF_State_Estimator/1', 'autorouting', 'on');
 add_line(modelName, 'EKF_State_Estimator/1', 'Ctrl_Input_Mux/2', 'autorouting', 'on');
