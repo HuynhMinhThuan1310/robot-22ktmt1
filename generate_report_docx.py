@@ -12,7 +12,7 @@ import docx
 import matplotlib.pyplot as plt
 from docx import Document
 from docx.shared import Inches, Pt, Cm, RGBColor
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_TAB_ALIGNMENT
 from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
 from docx.oxml import OxmlElement, parse_xml
 from docx.oxml.ns import nsdecls, qn
@@ -186,28 +186,14 @@ def add_bullet(doc, bold_prefix, text):
 
 def add_latex_formula(doc, latex_str, eq_num, fontsize=14.5):
     eq_path, w_in, _ = render_equation_png(latex_str, f"eq_{eq_num.replace('.', '_')}", fontsize=fontsize)
-    tbl = doc.add_table(rows=1, cols=2)
-    tbl.alignment = WD_TABLE_ALIGNMENT.CENTER
-    remove_table_borders(tbl)
-    tbl.autofit = False
-    c0, c1 = tbl.rows[0].cells[0], tbl.rows[0].cells[1]
-    c0.width = Cm(14.0)
-    c1.width = Cm(2.0)
-    c0.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-    c1.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-
-    p0 = c0.paragraphs[0]
-    p0.alignment = WD_ALIGN_PARAGRAPH.LEFT
-    p0.paragraph_format.left_indent = Cm(0.8)
-    p0.paragraph_format.space_before = Pt(4)
-    p0.paragraph_format.space_after = Pt(4)
-    p0.add_run().add_picture(eq_path, width=Inches(w_in))
-
-    p1 = c1.paragraphs[0]
-    p1.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    p1.paragraph_format.space_before = Pt(4)
-    p1.paragraph_format.space_after = Pt(4)
-    r1 = p1.add_run(f"({eq_num})")
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+    p.paragraph_format.left_indent = Cm(0.8)
+    p.paragraph_format.space_before = Pt(5)
+    p.paragraph_format.space_after = Pt(5)
+    p.paragraph_format.tab_stops.add_tab_stop(Cm(16.0), WD_TAB_ALIGNMENT.RIGHT)
+    p.add_run().add_picture(eq_path, width=Inches(w_in))
+    r1 = p.add_run(f"\t({eq_num})")
     r1.font.name = 'Times New Roman'
     r1.font.size = Pt(12.5)
 
@@ -358,33 +344,27 @@ def build_report():
         size=15.5, bold=True, after=44
     )
 
-    tbl_info = doc.add_table(rows=4, cols=2)
-    tbl_info.alignment = WD_TABLE_ALIGNMENT.CENTER
-    remove_table_borders(tbl_info)
-    info_data = [
+    info_lines = [
         ("Giảng viên hướng dẫn:", "TS. Phan Trần Đăng Khoa"),
-        ("Sinh viên thực hiện:", "1. Huỳnh Minh Thuận  (MSSV: 106220236)\n2. Trần Viết Thắng"),
+        ("Sinh viên thực hiện:", "1. Huỳnh Minh Thuận (MSSV: 106220236)"),
+        ("", "2. Trần Viết Thắng"),
         ("Lớp sinh hoạt:", "22KTMT1"),
         ("Kho lưu trữ mã nguồn:", "github.com/HuynhMinhThuan1310/robot-22ktmt1"),
     ]
-    for idx, (k, v) in enumerate(info_data):
-        c0, c1 = tbl_info.rows[idx].cells[0], tbl_info.rows[idx].cells[1]
-        c0.width = Cm(5.8)
-        c1.width = Cm(9.2)
-        p0 = c0.paragraphs[0]
-        p0.alignment = WD_ALIGN_PARAGRAPH.LEFT
-        p0.paragraph_format.space_after = Pt(6)
-        p0.paragraph_format.line_spacing = 1.25
-        r0 = p0.add_run(k)
-        r0.bold = True
-        r0.font.name = 'Times New Roman'
-        r0.font.size = Pt(13)
-
-        p1 = c1.paragraphs[0]
-        p1.alignment = WD_ALIGN_PARAGRAPH.LEFT
-        p1.paragraph_format.space_after = Pt(6)
-        p1.paragraph_format.line_spacing = 1.25
-        r1 = p1.add_run(v)
+    for k, v in info_lines:
+        p_info = doc.add_paragraph()
+        p_info.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        p_info.paragraph_format.left_indent = Cm(1.2)
+        p_info.paragraph_format.space_before = Pt(0)
+        p_info.paragraph_format.space_after = Pt(6)
+        p_info.paragraph_format.line_spacing = 1.25
+        p_info.paragraph_format.tab_stops.add_tab_stop(Cm(6.8), WD_TAB_ALIGNMENT.LEFT)
+        if k:
+            r0 = p_info.add_run(k)
+            r0.bold = True
+            r0.font.name = 'Times New Roman'
+            r0.font.size = Pt(13)
+        r1 = p_info.add_run(f"\t{v}")
         r1.font.name = 'Times New Roman'
         r1.font.size = Pt(13)
 
