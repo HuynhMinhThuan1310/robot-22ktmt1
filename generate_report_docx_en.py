@@ -19,7 +19,7 @@ from PIL import Image
 
 RES_DIR = r'c:\robot\Topic4_RobustMobileRobotControl\results'
 EQ_DIR = os.path.join(RES_DIR, 'equations')
-OUT_DOCX_EN = r'c:\robot\Topic4_RobustMobileRobotControl\Final_Report_Robotics_HuynhMinhThuan_TranVietThang_22KTMT1_EN.docx'
+OUT_DOCX_EN = r'c:\robot\Topic4_RobustMobileRobotControl\Final_Report_Robotics_EN_Final.docx'
 
 
 def add_rich_runs(p, text, font_size=13, bold=False, italic=False, color=None):

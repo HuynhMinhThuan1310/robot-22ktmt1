@@ -23,7 +23,7 @@ plt.rcParams['font.family'] = 'STIXGeneral'
 RES_DIR = r'c:\robot\Topic4_RobustMobileRobotControl\results'
 EQ_DIR = os.path.join(RES_DIR, 'equations')
 os.makedirs(EQ_DIR, exist_ok=True)
-OUT_DOCX = r'c:\robot\Topic4_RobustMobileRobotControl\Bao_cao_Cuoi_ky_Ky_thuat_Robot_HuynhMinhThuan_TranVietThang_22KTMT1_VN.docx'
+OUT_DOCX = r'c:\robot\Topic4_RobustMobileRobotControl\Bao_cao_Cuoi_ky_Ky_thuat_Robot_VN_Final.docx'
 
 
 def render_equation_png(latex_str, eq_name, fontsize=15):
