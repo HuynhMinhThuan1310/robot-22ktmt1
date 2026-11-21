@@ -131,10 +131,10 @@ def add_cover_border(section):
     sectPr = section._sectPr
     pgBorders = parse_xml(
         f'<w:pgBorders {nsdecls("w")} w:offsetFrom="page" w:display="firstPage">'
-        f'  <w:top w:val="double" w:sz="12" w:space="24" w:color="1F4E79"/>'
-        f'  <w:left w:val="double" w:sz="12" w:space="24" w:color="1F4E79"/>'
-        f'  <w:bottom w:val="double" w:sz="12" w:space="24" w:color="1F4E79"/>'
-        f'  <w:right w:val="double" w:sz="12" w:space="24" w:color="1F4E79"/>'
+        f'  <w:top w:val="double" w:sz="12" w:space="24" w:color="000000"/>'
+        f'  <w:left w:val="double" w:sz="12" w:space="24" w:color="000000"/>'
+        f'  <w:bottom w:val="double" w:sz="12" w:space="24" w:color="000000"/>'
+        f'  <w:right w:val="double" w:sz="12" w:space="24" w:color="000000"/>'
         f'</w:pgBorders>'
     )
     sectPr.append(pgBorders)
@@ -167,7 +167,7 @@ def add_body(doc, text, bold_prefix=None, indent=True):
     p = doc.add_paragraph()
     style_paragraph(p, align=WD_ALIGN_PARAGRAPH.JUSTIFY, space_after=6, line_spacing=1.35, first_line=(0.8 if indent else 0.0))
     if bold_prefix:
-        add_rich_runs(p, bold_prefix, font_size=13, bold=True)
+        add_rich_runs(p, bold_prefix, font_size=13, bold=False)
     add_rich_runs(p, text, font_size=13, bold=False)
     return p
 
@@ -179,7 +179,7 @@ def add_bullet(doc, bold_prefix, text):
     p.paragraph_format.space_after = Pt(4)
     p.paragraph_format.line_spacing = 1.35
     if bold_prefix:
-        add_rich_runs(p, bold_prefix, font_size=13, bold=True)
+        add_rich_runs(p, bold_prefix, font_size=13, bold=False)
     add_rich_runs(p, text, font_size=13, bold=False)
     return p
 
@@ -224,7 +224,7 @@ def add_chapter_heading(doc, title, page_break=True):
     r.bold = True
     r.font.name = 'Times New Roman'
     r.font.size = Pt(15)
-    r.font.color.rgb = RGBColor(0x1B, 0x36, 0x5D)
+    r.font.color.rgb = RGBColor(0x00, 0x00, 0x00)
     return p
 
 
@@ -234,7 +234,7 @@ def add_h2(doc, title):
     p.paragraph_format.space_before = Pt(10)
     p.paragraph_format.space_after = Pt(6)
     p.paragraph_format.keep_with_next = True
-    add_rich_runs(p, title, font_size=13.5, bold=True, color=RGBColor(0x1F, 0x4E, 0x79))
+    add_rich_runs(p, title, font_size=13.5, bold=True, color=RGBColor(0x00, 0x00, 0x00))
     return p
 
 
@@ -278,19 +278,18 @@ def add_styled_table(doc, headers, rows, caption, col_widths_cm=None, bold_last_
 
     hdr_cells = tbl.rows[0].cells
     for i, h in enumerate(headers):
-        set_cell_background(hdr_cells[i], '1F4E79')
+        set_cell_background(hdr_cells[i], 'E6E6E6')
         set_cell_margins(hdr_cells[i], top=90, bottom=90, left=80, right=80)
         hdr_cells[i].vertical_alignment = WD_ALIGN_VERTICAL.CENTER
         p = hdr_cells[i].paragraphs[0]
         p.alignment = WD_ALIGN_PARAGRAPH.LEFT
         p.paragraph_format.space_before = Pt(0)
         p.paragraph_format.space_after = Pt(0)
-        add_rich_runs(p, h, font_size=11.5, bold=True, color=RGBColor(0xFF, 0xFF, 0xFF))
+        add_rich_runs(p, h, font_size=11.5, bold=True, color=RGBColor(0x00, 0x00, 0x00))
 
     for r_idx, row_data in enumerate(rows):
         row_cells = tbl.rows[r_idx + 1].cells
-        bg = 'E9F2FA' if (bold_last_row and r_idx == len(rows) - 1) else ('F7F9FC' if r_idx % 2 == 1 else 'FFFFFF')
-        is_last = bold_last_row and (r_idx == len(rows) - 1)
+        bg = 'FFFFFF'
         for c_idx, val in enumerate(row_data):
             set_cell_background(row_cells[c_idx], bg)
             set_cell_margins(row_cells[c_idx], top=70, bottom=70, left=80, right=80)
@@ -300,7 +299,7 @@ def add_styled_table(doc, headers, rows, caption, col_widths_cm=None, bold_last_
             p.paragraph_format.space_before = Pt(0)
             p.paragraph_format.space_after = Pt(0)
             p.paragraph_format.line_spacing = 1.15
-            add_rich_runs(p, str(val), font_size=11.5, bold=is_last)
+            add_rich_runs(p, str(val), font_size=11.5, bold=False)
 
     if col_widths_cm:
         for row in tbl.rows:
@@ -347,16 +346,16 @@ def build_report():
 
     cover_line("ĐẠI HỌC ĐÀ NẴNG", size=14, bold=True, before=6, after=2)
     cover_line("TRƯỜNG ĐẠI HỌC BÁCH KHOA", size=14, bold=True, after=2)
-    cover_line("KHOA ĐIỆN TỬ – TRÍ TUỆ NHÂN TẠO", size=13.5, bold=True, color=RGBColor(0x1F, 0x4E, 0x79), after=34)
+    cover_line("KHOA ĐIỆN TỬ – TRÍ TUỆ NHÂN TẠO", size=13.5, bold=True, after=34)
 
-    cover_line("BÁO CÁO CUỐI KỲ", size=22, bold=True, color=RGBColor(0x1B, 0x36, 0x5D), before=20, after=8)
+    cover_line("BÁO CÁO CUỐI KỲ", size=22, bold=True, before=20, after=8)
     cover_line("HỌC PHẦN: KỸ THUẬT ROBOT", size=15, bold=True, after=28)
 
     cover_line("ĐỀ TÀI (CHỦ ĐỀ 4):", size=13.5, bold=True, after=8)
     cover_line(
         "ĐIỀU KHIỂN ROBOT DI ĐỘNG TRONG MÔI TRƯỜNG CÓ NHIỄU VÀ BẤT ĐỊNH\n"
         "ỨNG DỤNG BỘ LỌC KALMAN MỞ RỘNG (EKF) KẾT HỢP PID CHO ROBOT AGV VI SAI 2 BÁNH",
-        size=15.5, bold=True, color=RGBColor(0x1F, 0x4E, 0x79), after=44
+        size=15.5, bold=True, after=44
     )
 
     tbl_info = doc.add_table(rows=4, cols=2)
